@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan de Comidas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0a0a0a;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #1a1a1a;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            overflow: hidden;
+            padding: 30px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            color: #8b9dff;
+            border-bottom: 3px solid #8b9dff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .meal-selector {
+            margin-bottom: 30px;
+        }
+
+        .meal-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .meal-tab {
+            padding: 12px 25px;
+            background: #2a2a2a;
+            border: 2px solid #8b9dff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+
+        .meal-tab:hover {
+            background: #3a3a3a;
+            transform: translateY(-2px);
+        }
+
+        .meal-tab.active {
+            background: #8b9dff;
+            color: #0a0a0a;
+        }
+
+        .meal-content {
+            display: none;
+        }
+
+        .meal-content.active {
+            display: block;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .option-card {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #3a3a3a;
+            transition: all 0.3s;
+        }
+
+        .option-card:hover {
+            border-color: #8b9dff;
+            box-shadow: 0 5px 15px rgba(139, 157, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .option-card h4 {
+            color: #8b9dff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .option-card p {
+            color: #b0b0b0;
+            line-height: 1.8;
+        }
+
+        .fruits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .fruit-card {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #3a3a3a;
+        }
+
+        .fruit-card h4 {
+            color: #8b9dff;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .fruit-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .fruit-card li {
+            padding: 5px 0;
+            color: #b0b0b0;
+        }
+
+        .print-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 15px 30px;
+            background: #8b9dff;
+            color: #0a0a0a;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(139, 157, 255, 0.4);
+            transition: all 0.3s;
+        }
+
+        .print-btn:hover {
+            background: #a5b4ff;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 157, 255, 0.5);
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .print-btn {
+                display: none;
+            }
+            .meal-tabs {
+                display: none;
+            }
+            .meal-content {
+                display: block !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+            .meal-tabs {
+                flex-direction: column;
+            }
+            .print-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="section">
+            <h2>🍳 MENÚ SEMANAL</h2>
+            
+            <div class="meal-selector">
+                <div class="meal-tabs">
+                    <button class="meal-tab active" onclick="showMeal('desayuno')">Desayuno</button>
+                    <button class="meal-tab" onclick="showMeal('merienda-am')">Merienda AM</button>
+                    <button class="meal-tab" onclick="showMeal('almuerzo')">Almuerzo</button>
+                    <button class="meal-tab" onclick="showMeal('merienda-pm')">Merienda PM</button>
+                    <button class="meal-tab" onclick="showMeal('cena')">Cena</button>
+                </div>
+
+                <div id="desayuno" class="meal-content active">
+                    <h3 style="color: #8b9dff; margin-bottom: 20px;">🍳 DESAYUNO - Escoge 1 opción diaria</h3>
+                    <div class="options-grid">
+                        <div class="option-card">
+                            <h4>Opción 1</h4>
+                            <p>• 3 huevos revueltos con vegetales (espinaca, champiñones, tomate)<br>
+                            • ½ aguacate<br>
+                            • Café sin azúcar</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 2</h4>
+                            <p>• Omelette de 3 huevos con queso mozzarella y jamón de pavo<br>
+                            • 1 taza de fresas<br>
+                            • Té verde</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 3</h4>
+                            <p>• 2 huevos fritos + 2 lascas de jamón de pavo<br>
+                            • ½ aguacate<br>
+                            • Yogurt griego sin azúcar (½ taza) con canela</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 4</h4>
+                            <p>• Bowl proteico: 1 yogurt griego + 10 almendras + ½ taza de frambuesas + semillas de chía<br>
+                            • 2 huevos duros</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 5</h4>
+                            <p>• Revoltillo de 3 huevos con queso mozzarella, tomate y cebolla<br>
+                            • ½ aguacate<br>
+                            • Café con leche de almendra</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 6</h4>
+                            <p>• 2 huevos cocidos + 1 onza de cuajada<br>
+                            • 6 almendras<br>
+                            • ½ taza de melón</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="merienda-am" class="meal-content">
+                    <h3 style="color: #8b9dff; margin-bottom: 20px;">🍎 MERIENDA MEDIA MAÑANA</h3>
+                    <div class="options-grid">
+                        <div class="option-card">
+                            <h4>Opción 1</h4>
+                            <p>• 1 fruta pequeña (manzana, pera, durazno, naranja, kiwi)<br>
+                            • 10 almendras</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 2</h4>
+                            <p>• 1 huevo duro<br>
+                            • ½ aguacate con sal y limón</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 3</h4>
+                            <p>• Yogurt griego sin azúcar con canela</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 4</h4>
+                            <p>• Apio con 1 cda de mantequilla de maní natural</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 5</h4>
+                            <p>• Gelatina Vivo sin azúcar</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 6</h4>
+                            <p>• 1 taza de fresas con queso cottage</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="almuerzo" class="meal-content">
+                    <h3 style="color: #8b9dff; margin-bottom: 20px;">🍗 ALMUERZO - Escoge 1 opción diaria</h3>
+                    <div class="options-grid">
+                        <div class="option-card">
+                            <h4>Opción 1</h4>
+                            <p>• 5 onzas de fajitas de pollo con vegetales<br>
+                            • 2 tazas de ensalada verde<br>
+                            • ½ aguacate<br>
+                            • Aderezo de yogurt natural</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 2</h4>
+                            <p>• 5 onzas de carne deshilada con vegetales<br>
+                            • 2 tazas de ensalada<br>
+                            • 2 cdas de frijoles negros</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 3</h4>
+                            <p>• 5 onzas de pollo a la plancha<br>
+                            • 2 tazas de vegetales al vapor (brócoli, coliflor)<br>
+                            • Ensalada fresca</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 4</h4>
+                            <p>• 5 onzas de pescado al horno con limón<br>
+                            • Coliflor al vapor<br>
+                            • Ensalada de aguacate y tomate</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 5</h4>
+                            <p>• 5 onzas de pechuga de pavo a la plancha<br>
+                            • Espárragos asados<br>
+                            • Ensalada verde con pepino</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 6</h4>
+                            <p>• 5 onzas de carne asada<br>
+                            • Vegetales salteados<br>
+                            • Ensalada con chimol<br>
+                            • 2 cdas de frijoles</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="merienda-pm" class="meal-content">
+                    <h3 style="color: #8b9dff; margin-bottom: 20px;">🥜 MERIENDA MEDIA TARDE</h3>
+                    <div class="options-grid">
+                        <div class="option-card">
+                            <h4>Opción 1</h4>
+                            <p>• 1 fruta + 10 nueces</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 2</h4>
+                            <p>• Apio con 1 cda de mantequilla de maní natural</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 3</h4>
+                            <p>• ½ aguacate con sal y limón</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 4</h4>
+                            <p>• 1 taza de fresas con queso cottage</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 5</h4>
+                            <p>• Yogurt griego sin azúcar con canela</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 6</h4>
+                            <p>• 10 almendras + té verde</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="cena" class="meal-content">
+                    <h3 style="color: #8b9dff; margin-bottom: 20px;">🌮 CENA - Escoge 1 opción diaria</h3>
+                    <div class="options-grid">
+                        <div class="option-card">
+                            <h4>Opción 1</h4>
+                            <p>• 2 tortillas de taco con 3 onzas de pollo deshilado<br>
+                            • Lechuga, tomate, cilantro<br>
+                            • Guacamole</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 2</h4>
+                            <p>• Ensalada grande: lechuga, espinaca, 3 onzas de atún, huevo duro, aguacate, tomate<br>
+                            • Aderezo natural de yogurt</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 3</h4>
+                            <p>• 3 huevos revueltos con vegetales<br>
+                            • 1 plátano sancochado pequeño<br>
+                            • 1 cda de frijoles</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 4</h4>
+                            <p>• 4 onzas de pechuga de pollo a la plancha<br>
+                            • Ensalada de pepino, tomate y cebolla<br>
+                            • ½ aguacate</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 5</h4>
+                            <p>• Sopa de vegetales con 3 onzas de pollo desmenuzado<br>
+                            • Ensalada verde con aguacate</p>
+                        </div>
+                        <div class="option-card">
+                            <h4>Opción 6</h4>
+                            <p>• 1 pupusa de queso casera (masa delgada)<br>
+                            • Curtido abundante<br>
+                            • Ensalada verde</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🥤 BEBIDAS PERMITIDAS</h2>
+            <p>Agua natural (2 litros mínimo al día), H2O sabores, Be Light, café sin azúcar (con stevia si deseas), té verde, negro o infusiones, limonada con stevia, agua con pepino, limón y menta, bebidas 0 calorías 0 azúcar.</p>
+        </div>
+
+        <div class="section">
+            <h2>🥗 ADEREZOS CASEROS PERMITIDOS</h2>
+            <div class="options-grid">
+                <div class="option-card">
+                    <h4>Aderezo de aguacate y cilantro</h4>
+                    <p>½ aguacate + puñado de cilantro + ½ limón + ½ taza de yogurt griego + ajo en polvo, pimienta y sal + 2-3 cdas de agua</p>
+                </div>
+                <div class="option-card">
+                    <h4>Aderezo de mostaza</h4>
+                    <p>2 cdas mostaza dijon + ½ cda de vinagre + especias al gusto</p>
+                </div>
+                <div class="option-card">
+                    <h4>Aderezo de limón</h4>
+                    <p>Jugo de limón + aceite de oliva + ajo + sal y pimienta</p>
+                </div>
+                <div class="option-card">
+                    <h4>Aderezo yogurt-menta</h4>
+                    <p>½ taza de yogurt + 3 cebollinos picados + 1 diente de ajo + 10 hojas de menta licuadas</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🍓 PORCIONES DE FRUTAS RECOMENDADAS</h2>
+            <p style="color: #d32f2f; font-weight: bold; margin-bottom: 15px;">⚠️ Limitar a 2-3 porciones al día para reducir carbohidratos</p>
+            <div class="fruits-grid">
+                <div class="fruit-card">
+                    <h4>1 Pieza Pequeña:</h4>
+                    <ul>
+                        <li>• Manzana</li>
+                        <li>• Pera</li>
+                        <li>• Durazno</li>
+                        <li>• Naranja</li>
+                        <li>• Kiwi</li>
+                        <li>• Granadilla</li>
+                    </ul>
+                </div>
+                <div class="fruit-card">
+                    <h4>1 Taza de:</h4>
+                    <ul>
+                        <li>• Melón</li>
+                        <li>• Papaya</li>
+                        <li>• Sandía</li>
+                        <li>• Frambuesas</li>
+                    </ul>
+                </div>
+                <div class="fruit-card">
+                    <h4>Otros:</h4>
+                    <ul>
+                        <li>• 11 fresas</li>
+                        <li>• 17 uvas</li>
+                        <li>• 2 ciruelas</li>
+                        <li>• 2 guayabas</li>
+                        <li>• 2 mandarinas</li>
+                        <li>• 2 higos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">🖨️ Imprimir</button>
+
+    <script>
+        function showMeal(mealId) {
+            const contents = document.querySelectorAll('.meal-content');
+            contents.forEach(content => content.classList.remove('active'));
+            
+            const tabs = document.querySelectorAll('.meal-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            document.getElementById(mealId).classList.add('active');
+            
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
